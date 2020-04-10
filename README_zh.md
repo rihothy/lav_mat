@@ -189,3 +189,6 @@ int main(int argc, char* argv[])
     return 0;
 }
 ```
+
+## 开源协议
+Apache license 2.0
