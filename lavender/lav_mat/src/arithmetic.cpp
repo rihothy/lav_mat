@@ -72,15 +72,39 @@ Mat lav::mul(const Mat& a, const Mat& b, bool trans_a, bool trans_b)
 	{
 		Mat ans(r_a, c_b, true);
 
-		clblasSgemm
-		(
-			clblasRowMajor, trans_a ? clblasTrans : clblasNoTrans, trans_b ? clblasTrans : clblasNoTrans,
-			r_a, c_b, c_a, 1,
-			(a.uploaded ? a.g_buffer : decltype(a.g_buffer)(a.c_buffer.begin(), a.c_buffer.end(), Mat::queue)).get_buffer().get(), 0, a.cols,
-			(b.uploaded ? b.g_buffer : decltype(b.g_buffer)(b.c_buffer.begin(), b.c_buffer.end(), Mat::queue)).get_buffer().get(), 0, b.cols,
-			0, ans.g_buffer.get_buffer().get(), 0, ans.cols, 1,
-			&Mat::queue.get(), 0, nullptr, &Mat::event.get()
-		);
+		auto&& fun = [&](auto& a_g_buffer, auto& b_g_buffer)
+		{
+			clblasSgemm
+			(
+				clblasRowMajor, trans_a ? clblasTrans : clblasNoTrans, trans_b ? clblasTrans : clblasNoTrans,
+				r_a, c_b, c_a, 1,
+				a_g_buffer, 0, a.cols,
+				b_g_buffer, 0, b.cols,
+				0, ans.g_buffer.get_buffer().get(), 0, ans.cols, 1,
+				&Mat::queue.get(), 0, nullptr, &Mat::event.get()
+			);
+		};
+
+		if (!a.uploaded && !b.uploaded)
+		{
+			decltype(a.g_buffer) a_g_buffer(a.c_buffer.begin(), a.c_buffer.end(), Mat::queue);
+			decltype(b.g_buffer) b_g_buffer(b.c_buffer.begin(), b.c_buffer.end(), Mat::queue);
+			fun(a_g_buffer.get_buffer().get(), b_g_buffer.get_buffer().get());
+		}
+		else if (!a.uploaded)
+		{
+			decltype(a.g_buffer) a_g_buffer(a.c_buffer.begin(), a.c_buffer.end(), Mat::queue);
+			fun(a_g_buffer.get_buffer().get(), b.g_buffer.get_buffer().get());
+		}
+		else if (!b.uploaded)
+		{
+			decltype(b.g_buffer) b_g_buffer(b.c_buffer.begin(), b.c_buffer.end(), Mat::queue);
+			fun(a.g_buffer.get_buffer().get(), b_g_buffer.get_buffer().get());
+		}
+		else
+		{
+			fun(a.g_buffer.get_buffer().get(), b.g_buffer.get_buffer().get());
+		}
 
 		clWaitForEvents(1, &Mat::event.get());
 

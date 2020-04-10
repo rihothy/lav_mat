@@ -62,7 +62,7 @@ static lav::Mat lav::Mat::unary_op(const lav::Mat& mat, T&& op)
 template<typename T>
 static lav::Mat lav::Mat::binary_op(const lav::Mat& a, const lav::Mat& b, T&& op)
 {
-    static auto&& fun = [&](const auto& a, const auto& b)
+    auto&& fun = [&](const auto& a, const auto& b)
     {
         Mat ans(a.rows, a.cols, true);
 

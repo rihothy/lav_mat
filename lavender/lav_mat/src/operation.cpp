@@ -269,7 +269,7 @@ Mat Mat::operator()(size_t first_row, size_t last_row, size_t first_col, size_t 
     {
         Mat ans(last_row - first_row, last_col - first_col, true);
 
-        static auto&& fun = [&](auto& input, auto& output)
+        auto&& fun = [&](auto& input, auto& output)
         {
             fun_kernel.set_arg(0, input);
             fun_kernel.set_arg(1, output);

@@ -50,7 +50,7 @@ Mat Mat::t(void) const
 	static boc::program fun_program = boc::program::build_with_source(source, Mat::context);
 	static boc::kernel fun_kernel(fun_program, "fun");
 
-	static auto&& fun = [&](auto& input, auto& output)
+	auto&& fun = [&](auto& input, auto& output)
 	{
 		fun_kernel.set_arg(0, input);
 		fun_kernel.set_arg(1, output);
@@ -142,7 +142,7 @@ Mat Mat::max(bool axis) const
 	static boc::program fun_program = boc::program::build_with_source(source, Mat::context);
 	static boc::kernel fun_kernel(fun_program, "fun");
 
-	static auto&& fun = [&](auto& input, auto& output)
+	auto&& fun = [&](auto& input, auto& output)
 	{
 		fun_kernel.set_arg(0, input);
 		fun_kernel.set_arg(1, output);
@@ -235,7 +235,7 @@ Mat Mat::min(bool axis) const
 	static boc::program fun_program = boc::program::build_with_source(source, Mat::context);
 	static boc::kernel fun_kernel(fun_program, "fun");
 
-	static auto&& fun = [&](auto& input, auto& output)
+	auto&& fun = [&](auto& input, auto& output)
 	{
 		fun_kernel.set_arg(0, input);
 		fun_kernel.set_arg(1, output);
@@ -385,7 +385,7 @@ Mat Mat::max_loc(bool axis) const
 	static boc::program fun_program = boc::program::build_with_source(source, Mat::context);
 	static boc::kernel fun_kernel(fun_program, "fun");
 
-	static auto&& fun = [&](auto& input, auto& output)
+	auto&& fun = [&](auto& input, auto& output)
 	{
 		fun_kernel.set_arg(0, input);
 		fun_kernel.set_arg(1, output);
@@ -461,7 +461,7 @@ Mat Mat::min_loc(bool axis) const
 	static boc::program fun_program = boc::program::build_with_source(source, Mat::context);
 	static boc::kernel fun_kernel(fun_program, "fun");
 
-	static auto&& fun = [&](auto& input, auto& output)
+	auto&& fun = [&](auto& input, auto& output)
 	{
 		fun_kernel.set_arg(0, input);
 		fun_kernel.set_arg(1, output);
