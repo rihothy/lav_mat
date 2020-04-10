@@ -76,6 +76,12 @@ int main(int argc, char* argv[])
     std::cout << a + d << std::endl;
     
     /*
+    [[2 4 6]
+     [8 10 12]]
+    */
+    std::cout << 2 * a << std::endl;
+    
+    /*
     [[6 10 12]
      [23 20 6]]
     */
