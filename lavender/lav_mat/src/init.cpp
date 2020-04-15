@@ -208,21 +208,20 @@ Mat lav::randu(const size_t& rows, const size_t& cols, bool upload_flag)
 
 Mat lav::randn(const size_t& rows, const size_t& cols, float mean, float sigma, bool upload_flag)
 {
-    static std::default_random_engine e(time(nullptr));
-    std::normal_distribution<float> rand_float(mean, sigma);
-
     Mat mat(rows, cols, upload_flag);
 
-    std::vector<float> vec(rows * cols);
-    std::generate(vec.begin(), vec.end(), [&] {return rand_float(e); });
+    static boc::default_random_engine g_e(Mat::queue, time(nullptr));
+    static std::default_random_engine c_e(time(nullptr));
 
     if (upload_flag)
     {
-        mat.g_buffer.assign(vec.begin(), vec.end(), Mat::queue);
+        boc::normal_distribution<float> rand_float(mean, sigma);
+        rand_float.generate(mat.g_buffer.begin(), mat.g_buffer.end(), g_e, Mat::queue);
     }
     else
     {
-        mat.c_buffer = std::move(vec);
+        std::normal_distribution<float> rand_float(mean, sigma);
+        std::generate(mat.c_buffer.begin(), mat.c_buffer.end(), [&]() {return rand_float(c_e); });
     }
 
     return std::move(mat);
@@ -230,21 +229,20 @@ Mat lav::randn(const size_t& rows, const size_t& cols, float mean, float sigma, 
 
 Mat lav::randu(const size_t& rows, const size_t& cols, float lower, float upper, bool upload_flag)
 {
-    static std::default_random_engine e(time(nullptr));
-    std::uniform_real_distribution<float> rand_float(lower, upper);
-
     Mat mat(rows, cols, upload_flag);
 
-    std::vector<float> vec(rows * cols);
-    std::generate(vec.begin(), vec.end(), [&] {return rand_float(e); });
-
+    static boc::default_random_engine g_e(Mat::queue, time(nullptr));
+    static std::default_random_engine c_e(time(nullptr));
+    
     if (upload_flag)
     {
-        mat.g_buffer.assign(vec.begin(), vec.end(), Mat::queue);
+        boc::uniform_real_distribution<float> rand_float(lower, upper);
+        rand_float.generate(mat.g_buffer.begin(), mat.g_buffer.end(), g_e, Mat::queue);
     }
     else
     {
-        mat.c_buffer = std::move(vec);
+        std::uniform_real_distribution<float> rand_float(lower, upper);
+        std::generate(mat.c_buffer.begin(), mat.c_buffer.end(), [&]() {return rand_float(c_e); });
     }
 
     return std::move(mat);

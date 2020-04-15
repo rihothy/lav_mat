@@ -18,7 +18,7 @@
  * Author        : ¿Ó∫ÈˆŒ(Rihothy)
  * File name     : lav_mat.h
  * Version       : 1.0
- * Last modified : 2020-4-10
+ * Last modified : 2020-4-15
  *
  * See https://github.com/rihothy/lav_mat to get source code.
  * ************************************************************************/
@@ -31,8 +31,10 @@
 #include <functional>
 #include <stdexcept>
 #include <iostream>
+#include <cstdlib>
 #include <vector>
 #include <string>
+#include <ctime>
 
 const bool _DEFAULT_ON_VIDEO_RAM_ = false;//When the matrix is created, is the datas on RAM or on VRAM.
 
@@ -104,6 +106,11 @@ namespace lav
 		friend Mat min(Mat& a, const Mat& b);
 		friend Mat min(const Mat& a, Mat& b);
 		friend Mat min(const Mat& a, const Mat& b);
+
+		friend Mat shuffle(Mat& mat);
+		friend Mat shuffle(const Mat& mat);//Not yet
+		friend Mat shuffle(Mat& mat, bool axis, bool same_as_last_time);
+		friend Mat shuffle(const Mat& mat, bool axis, bool same_as_last_time);
 
 		friend Mat Eyes(const size_t& n, bool upload_flag);
 		friend Mat Ones(const size_t& rows, const size_t& cols, bool upload_flag);
@@ -243,6 +250,9 @@ namespace lav
 		template<typename T>
 		static Mat binary_op(const Mat& a, const Mat& b, T&& op);
 	};
+
+	Mat shuffle(Mat& mat, bool axis, bool same_as_last_time = false);
+	Mat shuffle(const Mat& mat, bool axis, bool same_as_last_time = false);
 
 	Mat Eyes(const size_t& n, bool upload_flag = _DEFAULT_ON_VIDEO_RAM_);
 	Mat Ones(const size_t& rows, const size_t& cols, bool upload_flag = _DEFAULT_ON_VIDEO_RAM_);

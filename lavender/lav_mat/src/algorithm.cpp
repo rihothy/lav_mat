@@ -18,7 +18,7 @@
  * Author        : ¿Ó∫ÈˆŒ(Rihothy)
  * File name     : algorithm.cpp
  * Version       : 1.0
- * Last modified : 2020-4-10
+ * Last modified : 2020-4-15
  *
  * See https://github.com/rihothy/lav_mat to get source code.
  * ************************************************************************/
@@ -576,4 +576,176 @@ Mat lav::min(const Mat& a, Mat& b)
 Mat lav::min(const Mat& a, const Mat& b)
 {
 	return Mat::binary_op(a, b, boc::lambda::min(boc::lambda::_1, boc::lambda::_2));
+}
+
+Mat lav::shuffle(Mat& mat)
+{
+	mat.upload();
+	const auto& temp = mat;
+	return shuffle(temp);
+}
+
+Mat lav::shuffle(const Mat& mat)
+{
+	static const char source[] = BOOST_COMPUTE_STRINGIZE_SOURCE
+	(
+		__kernel void fun(__global float* input, __global float* output, size_t rows, size_t cols, size_t axis)
+		{
+			const uint i = get_global_id(0);
+
+			if (axis)
+			{
+				output[i] = 0;
+				float num = input[i * cols];
+
+				for (size_t j = 0; j < cols; ++j)
+				{
+					if (num > input[i * cols + j])
+					{
+						num = input[i * cols + j];
+						output[i] = j;
+					}
+				}
+			}
+			else
+			{
+				output[i] = 0;
+				float num = input[i];
+
+				for (size_t j = 0; j < rows; ++j)
+				{
+					if (num > input[j * cols + i])
+					{
+						num = input[j * cols + i];
+						output[i] = j;
+					}
+				}
+			}
+		}
+	);
+
+	static boc::program fun_program = boc::program::build_with_source(source, Mat::context);
+	static boc::kernel fun_kernel(fun_program, "fun");
+
+	auto&& fun = [&](auto& input, auto& output)
+	{
+
+		fun_kernel.set_arg(0, input);
+		fun_kernel.set_arg(1, output);
+
+		auto event = Mat::queue.enqueue_1d_range_kernel(fun_kernel, 0, 0, 0);
+		event.wait();
+	};
+
+	Mat ans(mat.rows, mat.cols, true);
+
+	if (mat.uploaded)
+	{
+		fun(mat.g_buffer, ans.g_buffer);
+	}
+	else
+	{
+		decltype(mat.g_buffer) t_g_buffer(mat.c_buffer.begin(), mat.c_buffer.end(), Mat::queue);
+		fun(t_g_buffer, ans.g_buffer);
+	}
+
+	return std::move(ans);
+}
+
+Mat lav::shuffle(Mat& mat, bool axis, bool same_as_last_time)
+{
+	mat.upload();
+	const auto& temp = mat;
+	return shuffle(temp, axis, same_as_last_time);
+}
+
+Mat lav::shuffle(const Mat& mat, bool axis, bool same_as_last_time)
+{
+	static bool flag = false;
+
+	if (not flag)
+	{
+		flag = true;
+		srand(time(nullptr));
+	}
+
+	static size_t last_rows = 0, last_cols = 0;
+	static std::vector<float> c_indexes;
+	static boc::vector<float> g_indexes(Mat::context);
+
+	if (!(same_as_last_time && axis ? mat.rows == last_rows : mat.cols == last_cols))
+	{
+		last_rows = mat.rows, last_cols = mat.cols;
+
+		size_t i = 0;
+		c_indexes.resize(axis ? mat.rows : mat.cols);
+		std::generate(c_indexes.begin(), c_indexes.end(), [&] {return i++; });
+
+		for (size_t i = c_indexes.size() - 1; i < c_indexes.size(); --i)
+		{
+			size_t randint = 0;
+
+			for (size_t j = 0; j < 8; ++j)
+			{
+				randint = randint * 10 + rand() % 10;
+			}
+
+			std::swap(c_indexes[i], c_indexes[randint % (i + 1)]);
+		}
+
+		g_indexes.assign(c_indexes.begin(), c_indexes.end(), Mat::queue);
+	}
+
+	static const char source[] = BOOST_COMPUTE_STRINGIZE_SOURCE
+	(
+		__kernel void fun(__global float* input, __global float* output, __global float* indexes, size_t rows, size_t cols, size_t axis)
+		{
+			const uint i = get_global_id(0);
+			const uint row = i / cols;
+			const uint col = i % cols;
+
+			if (axis)
+			{
+				const size_t j = indexes[row];
+
+				output[i] = input[j * cols + col];
+			}
+			else
+			{
+				const size_t j = indexes[col];
+
+				output[i] = input[row * cols + j];
+			}
+		}
+	);
+
+	static boc::program fun_program = boc::program::build_with_source(source, Mat::context);
+	static boc::kernel fun_kernel(fun_program, "fun");
+
+	auto&& fun = [&](auto& input, auto& output)
+	{
+		fun_kernel.set_arg(0, input);
+		fun_kernel.set_arg(1, output);
+		fun_kernel.set_arg(2, g_indexes);
+		fun_kernel.set_arg(3, mat.rows);
+		fun_kernel.set_arg(4, mat.cols);
+		fun_kernel.set_arg(5, size_t(axis));
+
+		auto event = Mat::queue.enqueue_1d_range_kernel(fun_kernel, 0, mat.rows * mat.cols, 0);
+		event.wait();
+	};
+
+	Mat ans(mat.rows, mat.cols, true);
+
+	if (mat.uploaded)
+	{
+		fun(mat.g_buffer, ans.g_buffer);
+	}
+	else
+	{
+		decltype(mat.g_buffer) t_g_buffer(mat.c_buffer.begin(), mat.c_buffer.end(), Mat::queue);
+		fun(t_g_buffer, ans.g_buffer);
+	}
+
+	return std::move(ans);
 }
