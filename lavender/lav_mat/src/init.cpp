@@ -241,8 +241,7 @@ Mat lav::randu(const size_t& rows, const size_t& cols, float lower, float upper,
     }
     else
     {
-        std::uniform_int_distribution<int> rand_float(lower, upper);//////////////////////////////////////////////////////////////////////////
-        //std::uniform_real_distribution<float> rand_float(lower, upper);
+        std::uniform_real_distribution<float> rand_float(lower, upper);
         std::generate(mat.c_buffer.begin(), mat.c_buffer.end(), [&]() {return rand_float(c_e); });
     }
 
