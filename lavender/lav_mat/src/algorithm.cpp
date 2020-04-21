@@ -18,7 +18,7 @@
  * Author        : ¿Ó∫ÈˆŒ(Rihothy)
  * File name     : algorithm.cpp
  * Version       : 1.0
- * Last modified : 2020-4-15
+ * Last modified : 2020-4-10
  *
  * See https://github.com/rihothy/lav_mat to get source code.
  * ************************************************************************/

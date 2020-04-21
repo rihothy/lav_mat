@@ -18,7 +18,7 @@
  * Author        : ¿Ó∫ÈˆŒ(Rihothy)
  * File name     : lav_mat.h
  * Version       : 1.0
- * Last modified : 2020-4-15
+ * Last modified : 2020-4-21
  *
  * See https://github.com/rihothy/lav_mat to get source code.
  * ************************************************************************/
@@ -111,6 +111,11 @@ namespace lav
 		friend Mat shuffle(const Mat& mat);//Not yet
 		friend Mat shuffle(Mat& mat, bool axis, bool same_as_last_time);
 		friend Mat shuffle(const Mat& mat, bool axis, bool same_as_last_time);
+
+		friend Mat conv4d(Mat& f, Mat& g, std::vector<size_t> size, const size_t& stride, const std::string padding);
+		friend Mat conv4d(Mat& f, const Mat& g, std::vector<size_t> size, const size_t& stride, const std::string padding);
+		friend Mat conv4d(const Mat& f, Mat& g, std::vector<size_t> size, const size_t& stride, const std::string padding);
+		friend Mat conv4d(const Mat& f, const Mat& g, std::vector<size_t> size, const size_t& stride, const std::string padding);
 
 		friend Mat Eyes(const size_t& n, bool upload_flag);
 		friend Mat Ones(const size_t& rows, const size_t& cols, bool upload_flag);
@@ -217,6 +222,8 @@ namespace lav
 		//void push_right(const Mat& another);//Too fucking slow, don't use it.
 		//void push_right(const std::initializer_list<float>& vec);//Too fucking slow, don't use it.
 
+		boost::compute::vector<float> get_g_buffer(void) const;
+		std::vector<float> get_c_buffer(void) const;
 		Mat& operator=(Mat&& another) noexcept;
 		Mat& operator=(const Mat& another);
 		float& operator()(const size_t& row, const size_t& col);
@@ -253,6 +260,11 @@ namespace lav
 
 	Mat shuffle(Mat& mat, bool axis, bool same_as_last_time = false);
 	Mat shuffle(const Mat& mat, bool axis, bool same_as_last_time = false);
+
+	Mat conv4d(Mat& f, Mat& g, std::vector<size_t> size, const size_t& stride = 1, const std::string padding = "valid");
+	Mat conv4d(Mat& f, const Mat& g, std::vector<size_t> size, const size_t& stride = 1, const std::string padding = "valid");
+	Mat conv4d(const Mat& f, Mat& g, std::vector<size_t> size, const size_t& stride = 1, const std::string padding = "valid");
+	Mat conv4d(const Mat& f, const Mat& g, std::vector<size_t> size, const size_t& stride = 1, const std::string padding = "valid");
 
 	Mat Eyes(const size_t& n, bool upload_flag = _DEFAULT_ON_VIDEO_RAM_);
 	Mat Ones(const size_t& rows, const size_t& cols, bool upload_flag = _DEFAULT_ON_VIDEO_RAM_);

@@ -166,6 +166,33 @@ void Mat::push_back(const std::initializer_list<float>& vec)
     }
 }
 
+boc::vector<float> Mat::get_g_buffer(void) const
+{
+    if (uploaded)
+    {
+        return g_buffer;
+    }
+    else
+    {
+        return decltype(g_buffer)(c_buffer.begin(), c_buffer.end(), Mat::queue);
+    }
+}
+
+std::vector<float> Mat::get_c_buffer(void) const
+{
+    if (uploaded)
+    {
+        decltype(c_buffer) t_c_buffer(g_buffer.size());
+        boc::copy(g_buffer.begin(), g_buffer.end(), t_c_buffer.begin(), Mat::queue);
+
+        return std::move(t_c_buffer);
+    }
+    else
+    {
+        return c_buffer;
+    }
+}
+
 Mat& Mat::operator=(Mat&& another) noexcept
 {
     if (this != &another)
