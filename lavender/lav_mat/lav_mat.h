@@ -222,8 +222,6 @@ namespace lav
 		//void push_right(const Mat& another);//Too fucking slow, don't use it.
 		//void push_right(const std::initializer_list<float>& vec);//Too fucking slow, don't use it.
 
-		boost::compute::vector<float> get_g_buffer(void) const;
-		std::vector<float> get_c_buffer(void) const;
 		Mat& operator=(Mat&& another) noexcept;
 		Mat& operator=(const Mat& another);
 		float& operator()(const size_t& row, const size_t& col);
