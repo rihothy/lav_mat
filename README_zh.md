@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 这里的4维卷积是指用来卷积的矩阵表达的是一个4维数组（虽然矩阵还是2维的），而卷积运算依然是2D的卷积。  
 矩阵（参数为f）表示的数据如下  
 ![conv4d_f](https://github.com/rihothy/lav_mat/blob/master/images/conv4d_f.png)
-filter矩阵（参数为g）表示的数据如下  
+filter矩阵（参数为g）（图中f指卷积核的边长）表示的数据如下  
 ![conv4d_g](https://github.com/rihothy/lav_mat/blob/master/images/conv4d_g.png)
 函数原型
 ```c++
