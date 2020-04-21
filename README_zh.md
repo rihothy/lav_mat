@@ -156,7 +156,15 @@ int main(int argc, char* argv[])
 
 #### 4维卷积
 这里的4维卷积指用来卷积的矩阵表达的是一个4维数组（虽然矩阵还是2维的），而卷积运算依然是2D的卷积。  
-矩阵表示的数据如下
+矩阵表示的数据如下  
+![conv4d_f](https://github.com/rihothy/lav_mat/blob/master/images/conv4d_f.png)  
+filter矩阵表示的数据如下  
+![conv4d_g](https://github.com/rihothy/lav_mat/blob/master/images/conv4d_g.png)
+函数原型
+```c++
+Mat conv4d(Mat& f, Mat& g, std::vector<size_t> size, const size_t& stride, const std::string padding);
+```
+其中size为5维向量，值分别为w(width),h(height),channel,f(filter size),batch size，padding的值只能为"valid"或"same"。
 
 #### 其他操作
 ```c++
